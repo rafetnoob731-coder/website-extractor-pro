@@ -5,3 +5,4 @@ beautifulsoup4==4.12.2
 cachetools==5.3.2
 python-dotenv==1.0.0
 gunicorn==21.2.0
+vercel-wsgi==0.1.6
