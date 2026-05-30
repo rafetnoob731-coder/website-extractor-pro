@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Extractor Pro v3.0</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #1a1a25;
+            --bg-card-hover: #222230;
+            --text-primary: #e8e8f0;
+            --text-secondary: #8888a0;
+            --text-muted: #555570;
+            --accent-1: #6366f1;
+            --accent-2: #8b5cf6;
+            --accent-3: #a855f7;
+            --accent-glow: rgba(99, 102, 241, 0.15);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --border: #1e1e30;
+            --border-hover: #2e2e45;
+            --shadow: 0 0 40px rgba(0, 0, 0, 0.3);
+            --radius: 16px;
+            --radius-sm: 10px;
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --mono: 'JetBrains Mono', monospace;
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f0f2f5;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --bg-card-hover: #f8f9fa;
+            --text-primary: #1a1a2e;
+            --text-secondary: #6b7280;
+            --text-muted: #9ca3af;
+            --border: #e5e7eb;
+            --border-hover: #d1d5db;
+            --shadow: 0 0 40px rgba(0, 0, 0, 0.08);
+            --accent-glow: rgba(99, 102, 241, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Particle Background */
+        #particles {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: var(--accent-1);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float linear infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            10% { opacity: 0.4; }
+            90% { opacity: 0.4; }
+            100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 100;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            backdrop-filter: blur(12px);
+            font-size: 18px;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--accent-1);
+            box-shadow: 0 0 20px var(--accent-glow);
+            transform: scale(1.05);
+        }
+
+        /* Container */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px 20px 60px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 60px 20px 40px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-3));
+            color: white;
+            margin-bottom: 16px;
+        }
+
+        .badge-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #fff;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .header h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-3));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+        }
+
+        .header p {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 16px 20px;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--accent-1);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 4px;
+        }
+
+        /* Main Card */
+        .main-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 32px;
+            backdrop-filter: blur(20px);
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+        }
+
+        .main-card:hover {
+            border-color: var(--border-hover);
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+            padding: 4px;
+            margin-bottom: 28px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text-muted);
+            font-family: var(--font);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .tab-btn.active {
+            background: var(--accent-1);
+            color: white;
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+
+        .tab-btn:hover:not(.active) {
+            color: var(--text-primary);
+            background: var(--bg-card-hover);
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Form */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            letter-spacing: 0.3px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper .icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            opacity: 0.5;
+        }
+
+        .input-wrapper input,
+        .input-wrapper select {
+            width: 100%;
+            padding: 12px 16px 12px 44px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-family: var(--font);
+            font-size: 14px;
+            transition: var(--transition);
+            outline: none;
+        }
+
+        .input-wrapper input:focus,
+        .input-wrapper select:focus {
+            border-color: var(--accent-1);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .input-wrapper input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .input-wrapper select {
+            cursor: pointer;
+            appearance: none;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 640px) {
+            .form-row { grid-template-columns: 1fr; }
+        }
+
+        /* Toggle Switch */
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .toggle-group:last-child { border-bottom: none; }
+
+        .toggle-label {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .toggle-label span:first-child {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .toggle-label span:last-child {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .toggle {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background: var(--border);
+            border-radius: 24px;
+            transition: var(--transition);
+        }
+
+        .toggle-slider::before {
+            content: '';
+            position: absolute;
+            left: 3px;
+            bottom: 3px;
+            width: 18px;
+            height: 18px;
+            background: white;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        .toggle input:checked + .toggle-slider {
+            background: var(--accent-1);
+        }
+
+        .toggle input:checked + .toggle-slider::before {
+            transform: translateX(20px);
+        }
+
+        /* Advanced Options */
+        .advanced-options {
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+        }
+
+        .advanced-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .advanced-header span {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--accent-1);
+        }
+
+        .advanced-body {
+            display: none;
+            margin-top: 16px;
+        }
+
+        .advanced-body.open { display: block; }
+
+        .chevron { transition: transform 0.3s; }
+        .chevron.open { transform: rotate(180deg); }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 28px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: var(--font);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            color: white;
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px var(--accent-glow);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent-1);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+        }
+
+        /* Progress Section */
+        .progress-section {
+            display: none;
+            margin-top: 24px;
+        }
+
+        .progress-section.active { display: block; }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .progress-title {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .progress-percent {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--accent-1);
+            font-family: var(--mono);
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-1), var(--accent-3));
+            border-radius: 8px;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .progress-info {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .progress-info-item {
+            text-align: center;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+        }
+
+        .progress-info-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--accent-1);
+            font-family: var(--mono);
+        }
+
+        .progress-info-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 4px;
+        }
+
+        .status-text {
+            text-align: center;
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 16px;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+        }
+
+        .status-text .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--border);
+            border-top-color: var(--accent-1);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Download Section */
+        .download-section {
+            display: none;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .download-section.active { display: block; }
+
+        .download-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .download-section h2 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .download-section p {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .download-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .download-actions .btn {
+            width: auto;
+            min-width: 200px;
+        }
+
+        /* History */
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .history-item:hover {
+            border-color: var(--accent-1);
+        }
+
+        .history-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
+        }
+
+        .history-url {
+            font-size: 14px;
+            font-weight: 500;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .history-meta {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .history-status {
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .history-status.completed {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+        }
+
+        .history-status.error {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--error);
+        }
+
+        .history-status.processing {
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--accent-1);
+        }
+
+        .history-empty {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+        }
+
+        /* Features */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 20px;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .feature-card:hover {
+            border-color: var(--accent-1);
+            transform: translateY(-2px);
+        }
+
+        .feature-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .feature-title {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .feature-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .toast {
+            padding: 14px 20px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s ease-out;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 280px;
+            backdrop-filter: blur(12px);
+        }
+
+        .toast.success { border-left: 3px solid var(--success); }
+        .toast.error { border-left: 3px solid var(--error); }
+        .toast.warning { border-left: 3px solid var(--warning); }
+        .toast.info { border-left: 3px solid var(--accent-1); }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Spinner Page */
+        .page-spinner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            gap: 16px;
+            color: var(--text-muted);
+        }
+
+        .page-spinner .spinner-large {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent-1);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        /* Skeleton Loading */
+        .skeleton {
+            background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-card-hover) 50%, var(--bg-card) 75%);
+            background-size: 200% 100%;
+            animation: skeleton 1.5s ease-in-out infinite;
+            border-radius: 6px;
+        }
+
+        @keyframes skeleton {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-card { padding: 20px; }
+            .header { padding: 40px 20px 30px; }
+            .stats-bar { grid-template-columns: repeat(2, 1fr); }
+            .progress-info { grid-template-columns: 1fr; }
+            .features { grid-template-columns: repeat(2, 1fr); }
+            .download-actions { flex-direction: column; align-items: stretch; }
+            .download-actions .btn { width: 100%; }
+            .theme-toggle { top: 16px; right: 16px; }
+        }
+
+        @media (max-width: 480px) {
+            .stats-bar { grid-template-columns: 1fr; }
+            .features { grid-template-columns: 1fr; }
+            .header h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <div id="particles"></div>
+
+    <button class="theme-toggle" id="themeToggle" title="Toggle theme">🌙</button>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <div class="container">
+        <div class="header">
+            <div class="badge">
+                <span class="badge-dot"></span>
+                v3.0 Enterprise
+            </div>
+            <h1>Website Extractor Pro</h1>
+            <p>Enterprise-grade web extraction engine. Extract any website with advanced crawling, asset downloading, and ZIP packaging.</p>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-value" id="statPages">0</div>
+                <div class="stat-label">Pages Today</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="statJobs">0</div>
+                <div class="stat-label">Active Jobs</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="statSpeed">0s</div>
+                <div class="stat-label">Avg Speed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">24/7</div>
+                <div class="stat-label">Uptime</div>
+            </div>
+        </div>
+
+        <div class="main-card">
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="extract">🚀 Extract</button>
+                <button class="tab-btn" data-tab="history">📋 History</button>
+                <button class="tab-btn" data-tab="settings">⚙️ Settings</button>
+            </div>
+
+            <!-- Extract Tab -->
+            <div class="tab-content active" id="tab-extract">
+                <form id="extractForm">
+                    <div class="form-group">
+                        <label>🌐 Target Website URL</label>
+                        <div class="input-wrapper">
+                            <span class="icon">🔗</span>
+                            <input type="url" id="url" placeholder="https://example.com" required autocomplete="url">
+                        </div>
+                    </div>
+
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <span>🔐 Authentication Required</span>
+                            <span>Enable if the site needs login credentials</span>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" id="loginToggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div id="loginFields" class="advanced-options" style="display:none; margin-top: 16px;">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>👤 Username / Email</label>
+                                <div class="input-wrapper">
+                                    <span class="icon">👤</span>
+                                    <input type="text" id="username" placeholder="Enter username">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>🔒 Password</label>
+                                <div class="input-wrapper">
+                                    <span class="icon">🔒</span>
+                                    <input type="password" id="password" placeholder="Enter password">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="advanced-options">
+                        <div class="advanced-header" onclick="toggleAdvanced()">
+                            <span>⚡ Advanced Options</span>
+                            <span class="chevron" id="advChevron">▼</span>
+                        </div>
+                        <div class="advanced-body" id="advancedBody">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Max Pages</label>
+                                    <div class="input-wrapper">
+                                        <span class="icon">📄</span>
+                                        <input type="number" id="maxPages" value="50" min="10" max="500">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Max Depth</label>
+                                    <div class="input-wrapper">
+                                        <span class="icon">🔍</span>
+                                        <input type="number" id="maxDepth" value="3" min="1" max="10">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Request Delay (seconds)</label>
+                                <div class="input-wrapper">
+                                    <span class="icon">⏱️</span>
+                                    <input type="number" id="requestDelay" value="0.3" min="0" max="5" step="0.1">
+                                </div>
+                            </div>
+                            <div class="toggle-group">
+                                <div class="toggle-label">
+                                    <span>📦 Download Assets</span>
+                                    <span>Download CSS, JS, images, and fonts</span>
+                                </div>
+                                <label class="toggle">
+                                    <input type="checkbox" id="downloadAssets" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" id="extractBtn" style="margin-top: 24px;">
+                        🚀 Start Extraction
+                    </button>
+                </form>
+
+                <!-- Progress -->
+                <div class="progress-section" id="progressSection">
+                    <div class="progress-header">
+                        <span class="progress-title">📊 Extraction Progress</span>
+                        <span class="progress-percent" id="progressPercent">0%</span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                    </div>
+                    <div class="progress-info">
+                        <div class="progress-info-item">
+                            <div class="progress-info-value" id="progPages">0</div>
+                            <div class="progress-info-label">Pages</div>
+                        </div>
+                        <div class="progress-info-item">
+                            <div class="progress-info-value" id="progElapsed">0s</div>
+                            <div class="progress-info-label">Elapsed</div>
+                        </div>
+                        <div class="progress-info-item">
+                            <div class="progress-info-value" id="progStatus">⏳</div>
+                            <div class="progress-info-label">Status</div>
+                        </div>
+                    </div>
+                    <div class="status-text" id="statusText">
+                        <span class="spinner"></span> Initializing extraction...
+                    </div>
+                </div>
+
+                <!-- Download -->
+                <div class="download-section" id="downloadSection">
+                    <div class="download-icon">🎉</div>
+                    <h2>Extraction Complete!</h2>
+                    <p>Your website has been successfully extracted and packaged.</p>
+                    <div class="download-actions">
+                        <a href="#" class="btn btn-success" id="downloadBtn">📥 Download ZIP</a>
+                        <button class="btn btn-secondary" onclick="resetForm()">🔄 Extract Another</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History Tab -->
+            <div class="tab-content" id="tab-history">
+                <div class="page-spinner" id="historyLoader">
+                    <div class="spinner-large"></div>
+                    <span>Loading history...</span>
+                </div>
+                <div class="history-list" id="historyList"></div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div class="tab-content" id="tab-settings">
+                <div class="form-group">
+                    <label>🌐 API Endpoint</label>
+                    <div class="input-wrapper">
+                        <span class="icon">🔗</span>
+                        <input type="text" id="apiEndpoint" value="/api/extract" readonly>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>📁 Download Directory</label>
+                    <div class="input-wrapper">
+                        <span class="icon">📂</span>
+                        <input type="text" id="downloadDir" value="temp_extractions/" readonly>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>ℹ️ Server Info</label>
+                    <div style="background: var(--bg-secondary); border-radius: var(--radius-sm); padding: 16px; font-family: var(--mono); font-size: 13px; line-height: 1.8;">
+                        <div>Version: <span id="srvVersion">3.0.0</span></div>
+                        <div>Max Pages: <span id="srvMaxPages">100</span></div>
+                        <div>Max Depth: <span id="srvMaxDepth">5</span></div>
+                        <div>Timeout: <span id="srvTimeout">30s</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features -->
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">📄</div>
+                <div class="feature-title">HTML Extraction</div>
+                <div class="feature-desc">Full page source code</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎨</div>
+                <div class="feature-title">CSS Download</div>
+                <div class="feature-desc">All stylesheets</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📜</div>
+                <div class="feature-title">JavaScript</div>
+                <div class="feature-desc">All JS files</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🖼️</div>
+                <div class="feature-title">Images & Fonts</div>
+                <div class="feature-desc">All media assets</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔐</div>
+                <div class="feature-title">Auth Support</div>
+                <div class="feature-desc">GET/POST/Cookie login</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📦</div>
+                <div class="feature-title">ZIP Packaging</div>
+                <div class="feature-desc">One-click download</div>
+            </div>
+        </div>
+
+        <div style="text-align: center; padding: 40px 20px 20px; color: var(--text-muted); font-size: 13px;">
+            Website Extractor Pro v3.0 &mdash; Enterprise-Grade Web Extraction Engine
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // Particles
+        // ============================================================
+        (function initParticles() {
+            const container = document.getElementById('particles');
+            const count = 50;
+            for (let i = 0; i < count; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = Math.random() * 100 + '%';
+                p.style.animationDuration = (15 + Math.random() * 25) + 's';
+                p.style.animationDelay = (Math.random() * 20) + 's';
+                p.style.width = p.style.height = (2 + Math.random() * 3) + 'px';
+                p.style.opacity = 0.1 + Math.random() * 0.3;
+                container.appendChild(p);
+            }
+        })();
+
+        // ============================================================
+        // Theme
+        // ============================================================
+        const themeToggle = document.getElementById('themeToggle');
+        const html = document.documentElement;
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        html.setAttribute('data-theme', savedTheme);
+        themeToggle.textContent = savedTheme === 'dark' ? '🌙' : '☀️';
+
+        themeToggle.addEventListener('click', () => {
+            const current = html.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            themeToggle.textContent = next === 'dark' ? '🌙' : '☀️';
+        });
+
+        // ============================================================
+        // Tabs
+        // ============================================================
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+                if (btn.dataset.tab === 'history') loadHistory();
+            });
+        });
+
+        // ============================================================
+        // Toast
+        // ============================================================
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast ' + type;
+            const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+            toast.innerHTML = `<span>${icons[type] || 'ℹ️'}</span> ${message}`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateX(100%)'; toast.style.transition = '0.3s'; }, 3500);
+            setTimeout(() => toast.remove(), 4000);
+        }
+
+        // ============================================================
+        // Advanced Options
+        // ============================================================
+        function toggleAdvanced() {
+            const body = document.getElementById('advancedBody');
+            const chevron = document.getElementById('advChevron');
+            body.classList.toggle('open');
+            chevron.classList.toggle('open');
+        }
+
+        // ============================================================
+        // Login Toggle
+        // ============================================================
+        document.getElementById('loginToggle').addEventListener('change', function() {
+            document.getElementById('loginFields').style.display = this.checked ? 'block' : 'none';
+        });
+
+        // ============================================================
+        // State
+        // ============================================================
+        let currentJobId = null;
+        let statusInterval = null;
+
+        // ============================================================
+        // Extract Form
+        // ============================================================
+        document.getElementById('extractForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const url = document.getElementById('url').value.trim();
+            const needLogin = document.getElementById('loginToggle').checked;
+            const username = needLogin ? document.getElementById('username').value.trim() : '';
+            const password = needLogin ? document.getElementById('password').value.trim() : '';
+            const maxPages = parseInt(document.getElementById('maxPages').value) || 50;
+            const maxDepth = parseInt(document.getElementById('maxDepth').value) || 3;
+
+            if (!url) { showToast('Please enter a website URL', 'error'); return; }
+            if (needLogin && (!username || !password)) { showToast('Please enter username and password', 'error'); return; }
+
+            setExtractingUI(true);
+
+            try {
+                const response = await fetch('/api/extract', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url, username, password, max_pages: maxPages, max_depth: maxDepth })
+                });
+
+                const data = await response.json();
+                if (!data.success) { showToast(data.error || 'Extraction failed to start', 'error'); setExtractingUI(false); return; }
+
+                currentJobId = data.job_id;
+                showToast('Extraction started: ' + data.domain, 'success');
+                if (statusInterval) clearInterval(statusInterval);
+                statusInterval = setInterval(checkStatus, 1500);
+
+            } catch (error) {
+                showToast('Error: ' + error.message, 'error');
+                setExtractingUI(false);
+            }
+        });
+
+        function setExtractingUI(extracting) {
+            const btn = document.getElementById('extractBtn');
+            const progress = document.getElementById('progressSection');
+            const download = document.getElementById('downloadSection');
+
+            btn.disabled = extracting;
+            btn.innerHTML = extracting ? '<span class="spinner"></span> Extracting...' : '🚀 Start Extraction';
+            if (extracting) {
+                progress.classList.add('active');
+                download.classList.remove('active');
+            }
+        }
+
+        // ============================================================
+        // Status Polling
+        // ============================================================
+        async function checkStatus() {
+            if (!currentJobId) return;
+
+            try {
+                const response = await fetch(`/api/status/${currentJobId}`);
+                const data = await response.json();
+
+                updateProgressUI(data);
+
+                if (data.status === 'ready') {
+                    clearInterval(statusInterval);
+                    statusInterval = null;
+                    document.getElementById('progressFill').style.width = '100%';
+                    document.getElementById('progressPercent').textContent = '100%';
+                    document.getElementById('statusText').innerHTML = '✅ Extraction complete! Preparing download...';
+
+                    setTimeout(() => {
+                        document.getElementById('downloadSection').classList.add('active');
+                        document.getElementById('progressSection').classList.remove('active');
+                        document.getElementById('downloadBtn').href = data.download_url || `/api/download/${currentJobId}`;
+                        document.getElementById('extractBtn').disabled = false;
+                        document.getElementById('extractBtn').innerHTML = '🚀 Start Extraction';
+                        showToast('Extraction completed successfully!', 'success');
+                        loadHistory();
+                    }, 800);
+
+                } else if (data.status === 'error' || data.status === 'login_failed') {
+                    clearInterval(statusInterval);
+                    statusInterval = null;
+                    showToast(data.error || 'Extraction failed', 'error');
+                    document.getElementById('statusText').innerHTML = '❌ ' + (data.error || 'Extraction failed');
+                    document.getElementById('extractBtn').disabled = false;
+                    document.getElementById('extractBtn').innerHTML = '🚀 Start Extraction';
+                }
+            } catch (error) {
+                console.error('Status check error:', error);
+            }
+        }
+
+        function updateProgressUI(data) {
+            const pct = Math.min(data.progress || 0, 100);
+            document.getElementById('progressFill').style.width = pct + '%';
+            document.getElementById('progressPercent').textContent = Math.round(pct) + '%';
+            document.getElementById('progPages').textContent = data.pages || 0;
+            document.getElementById('progElapsed').textContent = (data.elapsed ? data.elapsed.toFixed(1) : '0') + 's';
+
+            const statusIcon = data.status === 'authenticating' ? '🔐' :
+                               data.status === 'extracting' ? '🕷️' :
+                               data.status === 'downloading_assets' ? '📦' :
+                               data.status === 'packaging' ? '🗜️' : '⏳';
+            document.getElementById('progStatus').textContent = statusIcon;
+
+            const statusMessages = {
+                'authenticating': 'Authenticating with server...',
+                'extracting': 'Crawling and extracting pages...',
+                'downloading_assets': 'Downloading CSS, JS, and assets...',
+                'packaging': 'Creating ZIP archive...',
+            };
+            document.getElementById('statusText').innerHTML =
+                `<span class="spinner"></span> ${statusMessages[data.status] || 'Processing...'}`;
+        }
+
+        // ============================================================
+        // Reset
+        // ============================================================
+        function resetForm() {
+            document.getElementById('extractForm').reset();
+            document.getElementById('progressSection').classList.remove('active');
+            document.getElementById('downloadSection').classList.remove('active');
+            document.getElementById('extractBtn').disabled = false;
+            document.getElementById('extractBtn').innerHTML = '🚀 Start Extraction';
+            document.getElementById('progressFill').style.width = '0%';
+            document.getElementById('progressPercent').textContent = '0%';
+            document.getElementById('statusText').innerHTML = '<span class="spinner"></span> Initializing extraction...';
+            document.getElementById('progPages').textContent = '0';
+            document.getElementById('progElapsed').textContent = '0s';
+            document.getElementById('loginFields').style.display = 'none';
+            currentJobId = null;
+            if (statusInterval) { clearInterval(statusInterval); statusInterval = null; }
+        }
+
+        // ============================================================
+        // History
+        // ============================================================
+        async function loadHistory() {
+            const loader = document.getElementById('historyLoader');
+            const list = document.getElementById('historyList');
+
+            loader.style.display = 'flex';
+            list.innerHTML = '';
+
+            try {
+                const resp = await fetch('/api/history');
+                const data = await resp.json();
+
+                loader.style.display = 'none';
+
+                if (!data.success || !data.extractions || data.extractions.length === 0) {
+                    list.innerHTML = '<div class="history-empty">📭 No extraction history yet</div>';
+                    return;
+                }
+
+                list.innerHTML = data.extractions.map(e => {
+                    const status = e.status === 'completed' ? 'completed' : e.status === 'error' ? 'error' : 'processing';
+                    const date = new Date(e.created_at + 'Z').toLocaleString();
+                    return `
+                        <div class="history-item" onclick="showToast('Job: ${e.id}', 'info')">
+                            <div class="history-info">
+                                <div class="history-url">${escapeHtml(e.url)}</div>
+                                <div class="history-meta">${e.pages || 0} pages &middot; ${date}</div>
+                            </div>
+                            <span class="history-status ${status}">${e.status}</span>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (err) {
+                loader.style.display = 'none';
+                list.innerHTML = '<div class="history-empty">❌ Failed to load history</div>';
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ============================================================
+        // Load server info
+        // ============================================================
+        (async function loadServerInfo() {
+            try {
+                const resp = await fetch('/api/info');
+                const data = await resp.json();
+                if (data.success && data.config) {
+                    document.getElementById('srvMaxPages').textContent = data.config.max_pages;
+                    document.getElementById('srvMaxDepth').textContent = data.config.max_depth;
+                    document.getElementById('srvTimeout').textContent = data.config.request_timeout + 's';
+                }
+            } catch (e) {}
+        })();
+
+        // ============================================================
+        // Keyboard shortcuts
+        // ============================================================
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && e.target.tagName !== 'INPUT') {
+                document.getElementById('extractBtn').click();
+            }
+            if (e.key === 'Escape') resetForm();
+        });
+    </script>
+</body>
+</html>
